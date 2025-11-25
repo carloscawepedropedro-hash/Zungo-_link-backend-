@@ -1,0 +1,63 @@
+{
+  "name": "zungo-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "@supabase/supabase-js": "^2.38.4"
+  }
+}import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
+
+dotenv.config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
+
+app.get("/", (req, res) => {
+  res.send("Zungo Thanks Backend está ON!");
+});
+
+app.post("/register", async (req, res) => {
+  const { email, password } = req.body;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) return res.json({ error: error.message });
+
+  res.json({ message: "Usuário criado!", data });
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) return res.json({ error: error.message });
+
+  res.json({ message: "Login OK!", data });
+});SUPABASE_URL=https://TEUPROJECT.supabase.co
+SUPABASE_KEY=CHAVE-DA-API-AQUI
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log("Backend Zungo Thanks na porta " + port));
